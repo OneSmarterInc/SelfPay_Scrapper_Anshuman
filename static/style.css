@@ -140,3 +140,5 @@ main{overflow-y:auto;overscroll-behavior-y:contain}.view{overflow:visible;min-he
 .scan-worker{padding:12px;border:1px solid #b9afcf;border-radius:8px;min-width:0;background:#fff}
 .scan-worker strong,.scan-worker small{display:block}.scan-worker p{margin:6px 0 0;overflow-wrap:anywhere}
 @media(max-width:760px){.scan-workers{grid-template-columns:1fr}}
+
+.concurrency-controls{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:16px 0}.concurrency-controls input,#scanConcurrency{width:120px}.concurrency-controls small,.concurrency-controls [role="status"]{align-self:center}

@@ -124,7 +124,7 @@ def checkpoint(job, hospital_index, queue=None, scheduled=None, visited=None, ro
 
 
 async def crawl(job, save):
-    if job.get('concurrency',1)>1 or job.get('checkpoint',{}).get('version')==2:
+    if 'concurrency' in job or job.get('checkpoint',{}).get('version')==2:
         from parallel_crawler import run
         return await run(job,save,_crawl_serial)
     return await _crawl_serial(job,save)

@@ -79,8 +79,8 @@ Imports add new IDs; they do not overwrite previously edited records. Existing f
 
 ## 5. Scan, review, and export
 
-1. **New scan:** choose your inputs and start. Up to **4 centers** run concurrently, with **1 center per website**, **2 browser renderers**, and **1 PDF processor** at a time.
-2. **Running scans:** see each active center and URL, elapsed active time, counts, and **Pause / Resume / Stop**. Each center has its own saved checkpoint. Pause waits for a safe point; an unfinished page may be retried on resume. Stop ends the scan; use Pause when you intend to continue.
+1. **New scan:** choose your inputs and start. Choose **Centers at a time** (default **4**, positive whole numbers with no fixed application maximum). Centers run concurrently, with **1 center per website**, **2 browser renderers**, and **1 PDF processor** at a time.
+2. **Running scans:** see each active center and URL, elapsed active time, counts, and **Pause / Resume / Stop**. Use **Centers at a time → Update** on Running scans to change concurrency. Increases start more available centers; decreases let active centers finish before reducing new starts. Each center has its own saved checkpoint. Pause waits for a safe point; an unfinished page may be retried on resume. Stop ends the scan; use Pause when you intend to continue.
 3. **Scan history / View findings:** inspect price candidates, page coverage, failures, and source routes. A processed center is not a guarantee that prices were published or found.
 4. **Review updates:** after a scan finishes, inspect paired **Old / New** values. Equivalent values are grouped; conflicts and uncertain findings need review. Use **Source & route** to verify the facility, exam, contrast, date, and included fees.
 5. **Approve, then Apply:** approval alone does not change the directory. Apply saves eligible approved updates. Replacing a populated conflicting field requires the explicit replacement action. Reviewing raw evidence alone also does not apply directory changes.

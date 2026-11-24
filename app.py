@@ -99,7 +99,7 @@ async def protect(request: Request, call_next):
 
 @app.get('/api/session')
 def session():
-    return {'token': TOKEN, 'pause_resume': True, 'local_only': True}
+    return {'token': TOKEN, 'pause_resume': True, 'local_only': True, 'adjustable_concurrency': True}
 
 
 def directory():
@@ -161,6 +161,7 @@ class ScanWorkbook(BaseModel):
 
 
 class ScanInput(BaseModel):
+    concurrency: int = Field(4, ge=1, strict=True)
     files: list[ScanWorkbook] = Field(default_factory=list, max_length=10)
     urls: list[str] = Field(default_factory=list, max_length=20)
     record_ids: list[str] = Field(default_factory=list, max_length=20000)
@@ -203,7 +204,7 @@ async def start_scan(payload: ScanInput):
     if not hospitals or len(hospitals) > (20 if payload.urls or payload.files else 20000):
         raise HTTPException(400, 'Select directory records, or use up to 20 providers when including Excel files or typed URLs.')
     job = {'id': uuid.uuid4().hex, 'created_at': datetime.now(timezone.utc).isoformat(), 'status': 'queued',
-           'hospitals': hospitals, 'baseline_records': selected, 'concurrency': 4, 'max_pages': payload.max_pages, 'max_depth': payload.max_depth,
+           'hospitals': hospitals, 'baseline_records': selected, 'concurrency': payload.concurrency, 'max_pages': payload.max_pages, 'max_depth': payload.max_depth,
            'pages': [], 'results': [], 'contacts': [], 'entities': [], 'warnings': [], 'current_url': '', 'cancel_requested': False}
     JOBS[job['id']] = job
     save(job)
@@ -249,6 +250,22 @@ async def pause(key: str):
     job['pause_requested'] = True
     save(job)
     return {'status': job['status'], 'pause_requested': True}
+
+
+class ConcurrencyInput(BaseModel):
+    concurrency: int = Field(ge=1, strict=True)
+
+
+@app.post('/api/scans/{key}/concurrency')
+async def change_concurrency(key: str, payload: ConcurrencyInput):
+    job = get_job(key)
+    if job['status'] not in ('queued','running','paused'):
+        raise HTTPException(409, 'Only active or paused scans can change concurrency.')
+    if job['status']=='running' and job.get('checkpoint',{}).get('version')!=2:
+        raise HTTPException(409, 'Pause this older scan before changing concurrency.')
+    job['concurrency']=payload.concurrency
+    save(job)
+    return {'concurrency':job['concurrency']}
 
 
 @app.post('/api/scans/{key}/resume')

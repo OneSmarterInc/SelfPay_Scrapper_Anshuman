@@ -44,7 +44,7 @@
 </section>
 <section class="scan-input-section" aria-labelledby="scanUrlHeading"><div class="scan-section-heading"><h2 id="scanUrlHeading">Add websites</h2><span class="scan-optional">Optional</span></div><p class="scan-description">Paste official provider websites or pricing pages.</p><label for="urls">Website URLs</label><textarea id="urls" rows="5" spellcheck="false" aria-describedby="urlHelp" placeholder="https://hospital.org/pricing/&#10;https://imaging-center.com/self-pay/"></textarea><p id="urlHelp" class="helper">One URL per line. Added as separate providers.</p><p class="scan-limit">With files or URLs: up to 20 providers total.</p></section>
 </div>
-<div class="scan-start"><div><strong>Pricing first. Coverage automatic.</strong><p>Review findings before applying updates.</p></div><button type="submit" id="startScan">Start scan</button></div>
+<div class="toolbar"><label>Centers at a time<input id="scanConcurrency" type="number" min="1" step="1" value="4" required aria-describedby="concurrencyHelp"></label><small id="concurrencyHelp">No fixed maximum. More centers use more RAM and CPU.</small></div><div class="scan-start"><div><strong>Pricing first. Coverage automatic.</strong><p>Review findings before applying updates.</p></div><button type="submit" id="startScan">Start scan</button></div>
 </form></section>
 
 <section id="running" class="view" hidden><div class="page-head"><div><h1>Running scans</h1><p>Updates every 5 seconds.</p></div><button class="secondary" id="refreshRunning">Refresh</button><button data-go="scan">New scan</button></div><div id="runningSummary" class="summary-strip" role="status" aria-live="polite">Checking scan activity...</div><div id="runningRows"></div></section>

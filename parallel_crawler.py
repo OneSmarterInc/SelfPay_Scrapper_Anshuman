@@ -1,4 +1,4 @@
-"""Four-center coordinator with independently resumable crawl frontiers."""
+"""Adjustable center coordinator with independently resumable crawl frontiers."""
 import asyncio
 import copy
 import hashlib
@@ -44,7 +44,7 @@ def migrate(job):
         state['workers'][str(index)]=child
         state['pending_indices'].remove(index)
     job['checkpoint']=state
-    job['concurrency']=4
+    job.setdefault('concurrency',4)
     job['completed_centers']=len(state['completed_indices'])
 
 def review_key(collection,row,index=None):
@@ -122,7 +122,7 @@ async def run(job,persist,serial):
                 busy={host(job['hospitals'][index]) for index in tasks.values()}
                 waiting=[int(key) for key in state['workers'] if int(key) not in tasks.values()]+state['pending_indices'][:]
                 for index in waiting:
-                    if len(tasks)>=4:break
+                    if len(tasks)>=job.get('concurrency',4):break
                     website=host(job['hospitals'][index])
                     if website in busy:continue
                     if index in state['pending_indices']:state['pending_indices'].remove(index)
