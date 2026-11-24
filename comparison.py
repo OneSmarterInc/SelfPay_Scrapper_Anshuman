@@ -17,7 +17,10 @@ def describe(proposal, record=None):
 
     label, tone = 'New evidence', 'evidence'
 
-    if p['kind'] == 'fill':
+    if p['kind'] == 'contact_add':
+        label, tone = 'Additional contact — keeps existing values', 'filled'
+
+    elif p['kind'] == 'fill':
 
         label, tone = 'Blank field filled' if p['status']=='applied' else 'Fills a blank field', 'filled'
 

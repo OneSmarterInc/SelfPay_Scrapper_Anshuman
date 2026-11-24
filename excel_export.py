@@ -11,6 +11,7 @@ from xml.sax.saxutils import escape
 
 from comparison import describe, signals, audit_values
 from facility_matching import field_key
+from contact_values import MULTI_FIELDS, values, identity
 import json
 from urllib.parse import urlsplit
 
@@ -127,6 +128,14 @@ def joined(values):
 
 
 def export_value(field,value):
+    if field in MULTI_FIELDS:
+        seen=set();lines=[]
+        for line in str(value or '').splitlines():
+            found=values(field,line)
+            for item in (found if len(found)>1 else [line]):
+                key=field_key(field,item)
+                if item.strip() and key not in seen:seen.add(key);lines.append(item)
+        return '\n'.join(lines)
     if field not in ('Current supported call number','Current usable email','New self-pay price evidence'):
         return value
     seen=set();lines=[]

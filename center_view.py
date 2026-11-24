@@ -4,6 +4,7 @@ from urllib.parse import urlsplit
 from enrichment import missing
 import re
 from facility_matching import FacilityIndex,name_key,address_parts,field_key
+from contact_values import MULTI_FIELDS, contains
 FIELDS={'Current supported address':'Address','Current supported call number':'Phone','Current usable email':'Email','MRI self-pay (USD)':'MRI price','CT self-pay (USD)':'CT price','Current supported offer / price scope':'Price scope','New self-pay price evidence':'Price evidence'}
 
 def observation_id(item):
@@ -47,6 +48,8 @@ def centers(records,proposals,jobs,scan_id=''):
         current=g['current'].get(field,'')
         previous=current if old is None else old
         label='Unchanged' if comparable(value)==comparable(str(previous)) else 'Blank → New' if missing(previous) else 'Old → Different'
+        if field in MULTI_FIELDS:
+            label='Unchanged' if comparable(value)==comparable(str(previous)) or contains(field,previous,value) else 'Blank → New' if missing(previous) else 'Additional contact'
         if field=='New self-pay price evidence':label='New price evidence — compare scope'
         if issues:label='Needs source review'
         g['observations'].append({'field':field,'value':value,'old_value':previous,'label':label,'status':status,'source_url':source,'scan_id':scan,'proposal_id':proposal,'review_target':target,'issues':issues or [],'crawl_route':route or [],'sources':[{'source_url':source,'crawl_route':route or []}]})

@@ -13,6 +13,7 @@ from pathlib import Path
 from directory import parse_directory
 from exam_matching import exam_scope
 from facility_matching import FacilityIndex, field_key, location_scope_issue
+from contact_values import MULTI_FIELDS, contains, append as append_contact
 
 CONTACT_FIELDS=['Current supported address','Current supported call number','Current usable email']
 PRICE_FIELD='New self-pay price evidence'
@@ -150,7 +151,11 @@ class Store:
                     rid=p['record_id'];match=db.execute('SELECT body FROM records WHERE id=?',(rid,)).fetchone()
                     if not match: outcomes.append({'id':key,'status':'blocked','reason':'Record no longer exists'});continue
                     row=json.loads(match[0]);before=json.loads(match[0]);field=p['field'];current=row['source'].get(field,'')
-                    if p['kind']=='fill':
+                    if p['kind']=='contact_add':
+                        if field not in MULTI_FIELDS:
+                            outcomes.append({'id':key,'status':'blocked','reason':'Unsupported contact field.'});continue
+                        row['source'][field]=append_contact(field,'' if missing(current) else current,p['value'])
+                    elif p['kind']=='fill':
                         if current!=p.get('old_value','') or not missing(current):
                             outcomes.append({'id':key,'status':'blocked','reason':'Field changed or already contains a value. Existing data preserved.'});continue
                         row['source'][field]=p['value']
@@ -216,8 +221,7 @@ def build_proposals(job,records):
     unique_contacts={}
     for contact in job.get('contacts',[]):
         if contact.get('review')=='rejected':continue
-        value=norm(contact['value'])
-        if contact['field']=='Current supported call number' and len(value)==11 and value.startswith('1'): value=value[1:]
+        value=field_key(contact['field'],contact['value'])
         key=(contact.get('record_id'),contact['field'],value)
         previous=unique_contacts.get(key)
         if previous is None or (contact.get('entity') and not previous.get('entity')): unique_contacts[key]=contact
@@ -225,8 +229,10 @@ def build_proposals(job,records):
         row=indexed.get(contact.get('record_id'))
         if not row or contact.get('scope_issues') or location_scope_issue(row,contact.get('source_url','')): continue
         old=row['source'].get(contact['field'],'')
+        if contact['field'] in MULTI_FIELDS and contains(contact['field'],old,contact['value']): continue
         if field_key(contact['field'],old)==field_key(contact['field'],contact['value']): continue
-        items.append(dict(contact,kind='fill' if missing(old) else 'conflict',record_name=row['name'],old_value=old,scan_id=job['id']))
+        kind='contact_add' if contact['field'] in MULTI_FIELDS else 'fill' if missing(old) else 'conflict'
+        items.append(dict(contact,kind=kind,record_name=row['name'],old_value=old,scan_id=job['id']))
     for price in job.get('results',[]):
         row=indexed.get(price.get('record_id'))
         if not row or price.get('price_type')!='self-pay / cash' or price.get('currency')!='USD' or price.get('review')=='rejected': continue

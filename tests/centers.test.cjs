@@ -28,3 +28,5 @@ test('existing values are checked without approval controls',()=>{
  assert.ok(html.includes('Already present')&&html.includes('No update needed'));
  assert.ok(!html.includes('Approve'));
 });
+
+test('additional contacts use append approval without replacement',()=>{const c=context();const html=c.proposalActions({id:'p',kind:'contact_add',status:'pending'});assert.ok(html.includes('Approve addition'));assert.ok(!html.includes('data-replace-existing'));assert.ok(html.includes('Reject'));});

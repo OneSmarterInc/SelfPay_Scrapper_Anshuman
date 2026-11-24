@@ -6,3 +6,5 @@ test('failed batch stops with completed progress intact',async()=>{let calls=0,p
 test('bulk approval excludes possible existing locations',()=>{const c=vm.createContext({});vm.runInContext(code,c);assert.equal(c.bulkEligible([{id:1,kind:'new_record',status:'pending',duplicate_candidates:[{id:'D-1'}]}]).length,0);});
 
 test('page rejection respects visible centers, filters and protected states',()=>{const helper=s.slice(s.indexOf('function rejectablePageIds('),s.indexOf('function bulkEligible('));const c=vm.createContext({});vm.runInContext(helper,c);const ids=c.rejectablePageIds([{proposal_ids:['a','b','a','c','filtered']}],[{id:'a',status:'pending'},{id:'b',status:'approved'},{id:'c',status:'applied'},{id:'offpage',status:'pending'}]);assert.equal(ids.join(','),'a,b');});
+
+test('bulk approval includes contact additions',()=>{const c=vm.createContext({});vm.runInContext(code,c);assert.equal(c.bulkEligible([{id:'p',kind:'contact_add',status:'pending'}]).length,1);});

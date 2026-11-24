@@ -2,6 +2,7 @@
 import re
 import unicodedata
 from urllib.parse import urlsplit
+from contact_values import MULTI_FIELDS, values, identity
 
 def words(value):
     return re.sub(r'[^a-z0-9]+',' ',unicodedata.normalize('NFKD',str(value or '')).encode('ascii','ignore').decode().lower()).strip()
@@ -54,6 +55,9 @@ class FacilityIndex:
 
 def field_key(field,value):
     text=str(value or '').strip()
+    if field in MULTI_FIELDS:
+        found=values(field,text)
+        if found:return tuple(sorted(identity(field,item) for item in found))
     if field=='Current supported call number':
         parts=re.split(r'\s*(?:ext\.?|extension|x)\s*',text,maxsplit=1,flags=re.I)
         digits=re.sub(r'\D','',parts[0])

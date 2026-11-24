@@ -86,6 +86,8 @@ Imports add new IDs; they do not overwrite previously edited records. Existing f
 5. **Approve, then Apply:** approval alone does not change the directory. Apply saves eligible approved updates. Replacing a populated conflicting field requires the explicit replacement action. Reviewing raw evidence alone also does not apply directory changes.
 6. **Directory → Download Excel:** exports the applied current values with old/new change details highlighted in yellow. Full CSV retains all fields and provenance. **Change history → Undo** reverses applied changes, newest first.
 
+A center can retain multiple phone numbers and emails. **Approve addition**, then Apply, adds a contact without replacing existing values. Equivalent numbers (including country-code formatting) and case-insensitive emails are deduplicated; different phone extensions stay separate. Verify the department and facility using Source & route.
+
 Review proposals are normally prepared when the batch ends; raw findings and coverage are available while it runs. Bulk selection follows the current filters across pages. Bulk approval excludes conflicts and possible duplicate locations; Apply handles up to 200 approved updates per action.
 
 ## How scanning stops

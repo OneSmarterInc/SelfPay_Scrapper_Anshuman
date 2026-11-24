@@ -9,7 +9,7 @@ def test_center_groups_fields_and_keeps_unchanged_observations():
     job={'id':'s','contacts':[{'record_id':'A','field':'Current supported call number','value':'123','source_url':'https://example.com'},{'record_id':'A','field':'Current usable email','value':'new@example.com','source_url':'https://example.com'}]}
     result=centers([record],[proposal],[job])
     assert len(result)==1
-    assert {o['label'] for o in result[0]['observations']}=={'Blank → New','Unchanged','Old → Different'}
+    assert {o['label'] for o in result[0]['observations']}=={'Blank → New','Unchanged','Additional contact'}
     assert result[0]['proposal_ids']==['p']
     assert record['source']['Current usable email']=='old@example.com'
 

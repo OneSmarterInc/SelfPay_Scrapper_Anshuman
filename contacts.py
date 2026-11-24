@@ -4,6 +4,7 @@ import json
 import re
 from urllib.parse import unquote, urljoin, urlsplit
 from bs4 import BeautifulSoup
+from contact_values import PHONE as CONTACT_PHONE, identity
 
 FIELDS = {'address':'Current supported address', 'phone':'Current supported call number', 'email':'Current usable email'}
 EMAIL = re.compile(r'[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}', re.I)
@@ -35,8 +36,7 @@ def extract_contacts(raw, url):
             if not found: return
             value=found.group().lower()
         if kind=='phone':
-            digits=re.sub(r'\D','',value.split('ext')[0])
-            if len(digits) not in (10,11) or (len(digits)==11 and not digits.startswith('1')): return
+            if not CONTACT_PHONE.fullmatch(value): return
         contacts.append({'kind':kind,'field':FIELDS[kind],'value':value,'evidence':clean(evidence)[:2200], 'source_url':url,'entity':entity,'scope':scope})
     for script in soup.select('script[type="application/ld+json"]'):
         try: document=json.loads(script.string or script.get_text())
@@ -57,10 +57,13 @@ def extract_contacts(raw, url):
             evidence=json.dumps({k:obj.get(k) for k in ('@type','name','address','telephone','email','url') if obj.get(k)},ensure_ascii=False)
             scope='Structured data for '+name+'; confirm it matches the selected facility'
             if street: add('address',full,evidence,name,scope)
-            for kind,key in [('phone','telephone'),('email','email')]:
-                values=obj.get(key,[]);values=values if isinstance(values,list) else [values]
-                for value in values:
-                    if isinstance(value,str): add(kind,value,evidence,name,scope)
+            points=obj.get('contactPoint',[])
+            points=points if isinstance(points,list) else [points]
+            for source in [obj]+[point for point in points if isinstance(point,dict)]:
+                for kind,key in [('phone','telephone'),('email','email')]:
+                    values=source.get(key,[]);values=values if isinstance(values,list) else [values]
+                    for value in values:
+                        if isinstance(value,str): add(kind,value,json.dumps(source,ensure_ascii=False),name,scope)
             if MEDICAL.search(name+' '+' '.join(str(t) for t in types)) and street:
                 entities.append({'name':name,'address':full,'city':city,'state':state,'url':url,'evidence':evidence})
     for tag in soup.select('script,style,template,noscript,[hidden],[aria-hidden=true]'): tag.decompose()
@@ -108,9 +111,9 @@ def extract_contacts(raw, url):
         # Fax labels/icons can be in a separate sibling from the number.
         context=str(block or node)
         if not re.search(r'fax',context,re.I):
-            for phone in PHONE.findall(line): add('phone',phone,(block.get_text(' ',strip=True) if block else line))
+            for phone in CONTACT_PHONE.findall(line): add('phone',phone,(block.get_text(' ',strip=True) if block else line))
     unique={}
     for item in contacts:
-        key=(item['kind'],item['value'],item['entity'])
+        key=(item['kind'],identity(item['field'],item['value']) if item['kind'] in ('phone','email') else item['value'],item['entity'])
         unique.setdefault(key,item)
     return list(unique.values()),list({(e['name'],e['address']):e for e in entities}.values())

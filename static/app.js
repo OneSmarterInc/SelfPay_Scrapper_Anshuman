@@ -146,7 +146,7 @@ $('selectAllRecords').onclick=()=>{filteredDirectory().filter(r=>r.urls.length).
 
 let proposals=[],proposalPage=0,centerRecords=[],scanCenterPage=0,scanCenters=[];
 
-const kindName={fill:'Fill missing field',price_evidence:'New price evidence',new_record:'New location lead',conflict:'Existing value differs'};
+const kindName={contact_add:'Additional contact',fill:'Fill missing field',price_evidence:'New price evidence',new_record:'New location lead',conflict:'Existing value differs'};
 
 async function updateProposalCount(){const data=await api('/api/enrichment');$('proposalNav').textContent=data.counts.pending||0;}
 
@@ -165,7 +165,7 @@ function proposalActions(p){
  if(!p)return '';
  if(['applied','invalidated'].includes(p.status))return `<div class="review-actions"><button disabled>Approve</button><button class="secondary" disabled>Reject</button></div><small>${escapeHTML(p.invalidation_reason||(p.status==='applied'?'Applied; use Change history to undo.':'Source invalidated.'))}</small>`;
  const blocked=!!p.duplicate_candidates?.length;
- const label=p.kind==='conflict'?'Approve replacement':p.kind==='new_record'?'Approve location':'Approve';
+ const label=p.kind==='contact_add'?'Approve addition':p.kind==='conflict'?'Approve replacement':p.kind==='new_record'?'Approve location':'Approve';
  return `<div class="review-actions"><button data-proposal-review="approved" data-proposal-id="${escapeHTML(p.id)}" data-proposal-ids="${escapeHTML(JSON.stringify(p.group_ids||[p.id]))}" ${p.kind==='conflict'?'data-replace-existing="true"':''} ${p.status==='approved'||blocked?'disabled':''}>${label}</button><button class="secondary" data-proposal-review="rejected" data-proposal-id="${escapeHTML(p.id)}" data-proposal-ids="${escapeHTML(JSON.stringify(p.group_ids||[p.id]))}" ${p.status==='rejected'?'disabled':''}>Reject</button>${p.status!=='pending'?`<button class="text-button" data-proposal-review="pending" data-proposal-id="${escapeHTML(p.id)}" data-proposal-ids="${escapeHTML(JSON.stringify(p.group_ids||[p.id]))}">Reset</button>`:''}</div>${blocked?`<small>New location blocked: possible existing record.</small>${p.duplicate_candidates.map(c=>`<button class="secondary" data-review-existing="${escapeHTML(c.id)}">Review ${escapeHTML(c.id)} updates</button>`).join('')}`:p.kind==='conflict'?'<small>Replaces after Apply.</small>':p.kind==='new_record'?'<small>Location fields reviewed together.</small>':''}`;
 }
 function observationActions(o,p,actionable){
@@ -405,7 +405,7 @@ $('resetProposalFilters').onclick=()=>{for(const id of ['proposalSearch','propos
 let bulkApproving=false;
 let pageRejectIds=[];
 function rejectablePageIds(groups,items){const allowed=new Set(items.filter(p=>['pending','approved'].includes(p.status)).map(p=>p.id));return [...new Set(groups.flatMap(g=>g.proposal_ids).filter(id=>allowed.has(id)))];}
-function bulkEligible(items){return items.filter(p=>p.status==='pending'&&!p.duplicate_candidates?.length&&['fill','price_evidence','new_record'].includes(p.kind))}
+function bulkEligible(items){return items.filter(p=>p.status==='pending'&&!p.duplicate_candidates?.length&&['fill','contact_add','price_evidence','new_record'].includes(p.kind))}
 async function approveProposalBatches(ids,onProgress=()=>{}){
     for(let offset=0;offset<ids.length;offset+=200){
         const batch=ids.slice(offset,offset+200);
