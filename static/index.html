@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Clearprice | Self-pay imaging research</title><link rel="stylesheet" href="/static/style.css?v=20261124-review-check"><script defer src="/static/app.js?v=20261124-review-check"></script></head>
+
+<body>
+
+<header><a class="brand" href="#/dashboard" data-view="dashboard" aria-label="Clearprice home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22v18H5zM11 2v10M21 2v10M11 19l3 3 7-7"/></svg>Clearprice<span>US imaging research</span></a><span class="local">Local workspace</span></header>
+
+<div class="shell"><aside><nav aria-label="Workspace"><a class="nav active" aria-current="page" data-view="dashboard" href="#/dashboard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>Dashboard</a><a class="nav" data-view="directory" href="#/directory"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 9h18M9 9v12"/></svg>Directory <span id="navCount">0</span></a><a class="nav" data-view="scan" href="#/new-scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg>New scan</a><a class="nav" data-view="enrichment" href="#/review-updates"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6M4 3h16v18H4"/></svg>Review updates <span id="proposalNav">0</span></a><a class="nav" data-view="changes" href="#/change-history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Change history</a><a class="nav" data-view="running" href="#/running-scans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l3-7 3 14 3-7h3"/></svg>Running scans</a><a class="nav" data-view="history" href="#/scan-history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></svg>Scan history</a><a class="nav" data-view="guide" href="#/help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0"/></svg>How it works</a></nav><div class="sidebar-note"><p>Local data. Original CSV preserved.</p></div></aside>
+
+<main id="mainContent"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="#/directory" data-view="directory">Workspace</a><span aria-hidden="true">/</span><span id="currentPageLabel">Dashboard</span></nav>
+
+<section id="dashboard" class="view"><div class="page-head"><div><h1>Dashboard</h1></div><button class="secondary" id="refreshDashboard">Refresh data</button><button data-go="scan">New scan</button></div><p id="dashboardStatus" class="helper" role="status" aria-live="polite">Loading dashboard...</p><div id="dashboardBody" class="dashboard-body"></div></section><div id="message" role="alert" hidden></div>
+
+<section id="directory" class="view" hidden>
+
+<div class="page-head"><div><h1>Directory</h1></div><a class="button secondary" href="/api/directory/export.xlsx">Download Excel</a><a class="button secondary" href="/api/directory/export.csv">Full CSV</a><button class="secondary" id="importButton" type="button">Import directory</button><input id="importFile" type="file" accept=".csv" hidden></div>
+
+<div class="summary-strip" id="directorySummary">Loading your workspace…</div>
+
+<div class="toolbar"><label class="search">Search directory<input id="directorySearch" type="search" placeholder="Provider, city, state, or record ID"></label><label>Record category<select id="categoryFilter"><option value="">All categories</option></select></label><label>Missing field<select id="gapFilter"><option value="">All records</option><option value="any">Any missing contact</option><option value="Current supported address">Address</option><option value="Current supported call number">Phone</option><option value="Current usable email">Email</option><option value="MRI self-pay (USD)">MRI price</option><option value="CT self-pay (USD)">CT price</option></select></label></div>
+
+<div class="change-legend"><span class="change-label filled">Blue: fills a blank</span><span class="change-label different">Lavender: different value — review scope</span></div><div class="selection-tools"><button id="scanSelected" disabled>Scan selected <span id="selectedCount">0</span></button><button class="secondary" id="selectAllRecords" title="Select all matching records with source URLs, across pages">Select all records</button><button class="text-button" id="clearSelection">Clear selection</button><button class="secondary" id="resetDirectoryFilters">Reset filters</button></div>
+
+<div class="table-wrap"><table><thead><tr><th><span class="sr-only">Select</span></th><th>Provider / source record</th><th>Location & scope</th><th>Existing verification</th><th>Source</th></tr></thead><tbody id="directoryRows"></tbody></table></div>
+
+<div class="pagination"><span id="pageCount"></span><div><label class="page-size">Per page<select id="directoryPageSize" aria-label="Directory records per page"><option>10</option><option>20</option></select></label><button id="previousPage" class="secondary">Previous</button><button id="nextPage" class="secondary">Next</button></div></div>
+
+<details id="recordDetail" hidden><summary>Source record <button type="button" id="closeRecord" class="secondary">Close</button></summary><div id="recordFields"></div></details>
+
+</section>
+
+<section id="scan" class="view" hidden>
+<div class="page-head"><div><h1>New scan</h1><p>Add centers to find published prices and contact details.</p></div><a class="button secondary" href="#/running-scans" data-view="running">Running scans</a></div>
+<form id="scanForm">
+<div class="scan-directory"><div><h2>Directory records</h2><p id="selectionNote" role="status">No records selected.</p></div><a class="button secondary" href="#/directory" data-view="directory">Choose records</a></div>
+<div class="scan-inputs">
+<section class="scan-input-section" aria-labelledby="scanExcelHeading"><div class="scan-section-heading"><h2 id="scanExcelHeading">Upload Excel</h2><span class="scan-optional">Optional</span></div><p class="scan-description">Add one or more files using the required template.</p>
+<a class="scan-template" href="/api/scans/template.xlsx" download><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></svg>Download Excel template</a>
+<div class="scan-file-area"><label for="scanFiles">Select Excel files</label><input id="scanFiles" type="file" accept=".xlsx" multiple aria-describedby="excelHelp scanFileSummary"><p id="excelHelp" class="helper">Up to 10 .xlsx files · 2 MB each</p></div>
+<div class="scan-file-status"><p id="scanFileSummary" role="status">No files selected.</p><button type="button" id="clearScanFiles" class="secondary" disabled>Clear files</button></div>
+</section>
+<section class="scan-input-section" aria-labelledby="scanUrlHeading"><div class="scan-section-heading"><h2 id="scanUrlHeading">Add websites</h2><span class="scan-optional">Optional</span></div><p class="scan-description">Paste official provider websites or pricing pages.</p><label for="urls">Website URLs</label><textarea id="urls" rows="5" spellcheck="false" aria-describedby="urlHelp" placeholder="https://hospital.org/pricing/&#10;https://imaging-center.com/self-pay/"></textarea><p id="urlHelp" class="helper">One URL per line. Added as separate providers.</p><p class="scan-limit">With files or URLs: up to 20 providers total.</p></section>
+</div>
+<div class="scan-start"><div><strong>Pricing first. Coverage automatic.</strong><p>Review findings before applying updates.</p></div><button type="submit" id="startScan">Start scan</button></div>
+</form></section>
+
+<section id="running" class="view" hidden><div class="page-head"><div><h1>Running scans</h1><p>Updates every 5 seconds.</p></div><button class="secondary" id="refreshRunning">Refresh</button><button data-go="scan">New scan</button></div><div id="runningSummary" class="summary-strip" role="status" aria-live="polite">Checking scan activity...</div><div id="runningRows"></div></section>
+<section id="history" class="view" hidden><div class="page-head"><div><h1>Scan history</h1></div><button data-go="scan">New scan</button></div><div id="historyRows"></div><div class="pagination" id="historyPager"></div></section>
+
+<section id="results" class="view" hidden><div class="page-head"><div><button class="text-button" data-go="history">Back to scan history</button><h1 id="scanTitle">Scan results</h1><p id="scanDescription"></p></div><div class="result-actions"><button id="pauseScan" class="secondary" hidden>Pause scan</button><button id="resumeScan" class="secondary" hidden>Resume scan</button><button id="stopScan" class="danger-button" hidden>Stop scan</button></div></div><div id="scanProgress" role="status" aria-live="polite"></div><div class="toolbar"><button id="openUpdates">Review updates</button><span id="contactCount" class="helper"></span></div><div class="result-actions"><div class="tabs" role="group" aria-label="Results view"><button class="tab active" data-tab="prices">Price evidence <span id="priceCount">0</span></button><button class="tab" data-tab="centers">Center details</button><button class="tab" data-tab="coverage">Page coverage <span id="coverageCount">0</span></button></div><div><a id="exportAll" class="button secondary">Excel: all evidence</a><a id="exportAccepted" class="button secondary">Excel: accepted</a></div></div><div id="pricesPanel"><div class="toolbar"><label class="search">Find a price<input id="priceSearch" type="search" placeholder="Service, provider, modality, or code"></label><label>Price type<select id="priceType"><option value="">All evidence</option><option value="self-pay / cash">Self-pay / cash only</option></select></label><label>Review status<select id="reviewFilter"><option value="">All statuses</option><option>unreviewed</option><option>accepted</option><option>rejected</option></select></label></div><button class="text-button" id="resetPriceFilters">Reset filters</button><div id="priceRows"></div><div class="pagination" id="pricesPager"></div></div><div id="centersPanel" hidden><div class="toolbar"><label class="search">Find a center or fetched value<input id="scanCenterSearch" type="search"></label><button id="scanCenterRefresh" class="secondary">Refresh center details</button></div><div id="scanCenterRows"></div><div class="pagination"><span id="scanCenterLabel"></span><label>Centers per page<select id="scanCenterSize"><option>10</option><option>20</option></select></label><button id="scanCenterPrevious" class="secondary">Previous</button><button id="scanCenterNext" class="secondary">Next</button></div></div><div id="coveragePanel" hidden><div id="scanWarnings"></div><div class="table-wrap"><table><thead><tr><th>Page</th><th>Outcome</th><th>Detail</th></tr></thead><tbody id="coverageRows"></tbody></table></div><div class="pagination" id="coveragePager"></div></div></section>
+
+<section id="enrichment" class="view" hidden>
+
+<div class="page-head"><div><h1>Review updates</h1></div><a class="button secondary" href="/api/directory/export.xlsx">Download Excel</a></div>
+
+
+
+<div class="toolbar"><label class="search">Search updates<input type="search" id="proposalSearch" placeholder="Provider, record ID, value or field"></label><label>Update type<select id="proposalKind"><option value="">All types</option><option value="fill">Fill missing field</option><option value="price_evidence">New price evidence</option><option value="new_record">New location lead</option><option value="conflict">Existing value differs</option></select></label><label>Review state<select id="proposalStatus"><option value="pending">Pending</option><option value="approved">Approved</option><option value="applied">Applied</option><option value="rejected">Rejected</option><option value="invalidated">Invalidated</option><option value="">All states</option></select></label></div>
+
+<div class="toolbar"><label>Scan<select id="proposalScan"><option value="">All scans</option></select></label><button class="secondary" id="resetProposalFilters">Reset filters</button><button id="selectAllUpdates" class="secondary">Select all updates</button><button id="clearUpdateSelection" class="text-button">Clear selection</button><button id="approveAll" title="Approve eligible selected updates; excludes conflicts and duplicates. Apply to save." class="secondary" disabled>Approve selected</button><button id="rejectPage" title="Reject selected pending or approved updates across filtered pages." class="secondary" disabled>Reject selected</button><button id="applyApproved">Apply approved updates</button></div>
+
+
+
+<div id="applyNotice" class="notice" role="status" hidden></div><div id="proposalRows"></div><div class="pagination"><span id="proposalPageLabel"></span><div><label class="page-size">Per page<select id="proposalPageSize" aria-label="Review updates per page"><option>10</option><option>20</option></select></label><button class="secondary" id="proposalPrevious">Previous</button><button class="secondary" id="proposalNext">Next</button></div></div>
+
+</section>
+
+<section id="changes" class="view" hidden><div class="page-head"><div><h1>Change history</h1><p>Undo the latest change to a record first.</p></div></div><div id="changeRows"></div><div class="pagination" id="changesPager"></div></section>
+
+<section id="guide" class="view" hidden><h1>How it works</h1><div class="guide"><h2>1. Scan</h2><p>Select directory records, upload completed Excel templates, or enter official websites. Pause and resume from Running scans.</p><h2>2. Review</h2><p>Compare Old and New. Open Source &amp; route to check the facility, exam, contrast, date and included fees. Missing data means unknown.</p><h2>3. Apply</h2><p>Approve or reject each update. Approval alone does not change the directory. Apply approved updates to save. Approve replacement explicitly replaces an existing field; stale values stay protected. Approve evidence only reviews the source finding.</p><h2>4. Export or undo</h2><p>Download Excel for grouped details and yellow old/new highlights. CSV includes all fields. Undo applied changes in Change history, newest first.</p><h2>Coverage</h2><p>Supports HTML, JavaScript rendering, scanned PDF OCR and supported CMS cash-price files up to 100 MB. OCR prices need visual review. No login flows, CAPTCHA solving or interactive estimator forms. No page-count or link-depth limit. External pricing hosts require a separate scan.</p><p>Contacts and location leads need branch verification. Repeated source checks do not guarantee the final bill. The original CSV stays unchanged.</p></div></section>
+
+</main></div><footer>Clearprice · Local workspace</footer>
+
+<dialog id="evidenceDialog" aria-labelledby="evidenceTitle"><div class="dialog-head"><h2 id="evidenceTitle">Source verification</h2><button id="closeEvidence" class="secondary" type="button">Close</button></div><div id="evidenceBody"></div></dialog></body></html>
+

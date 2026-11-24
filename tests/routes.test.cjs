@@ -1,0 +1,3 @@
+const test=require('node:test');const assert=require('node:assert/strict');const vm=require('node:vm');const fs=require('node:fs');const s=fs.readFileSync('static/app.js','utf8');
+const code=s.slice(s.indexOf('const pageRoutes='),s.indexOf('function updatePageRoute'));
+test('all navigation routes and scan bookmarks resolve',()=>{const c=vm.createContext({});vm.runInContext(code,c);for(const path of ['dashboard','directory','new-scan','review-updates','change-history','running-scans','scan-history','help'])assert.ok(c.parsePageRoute('#/'+path));assert.equal(c.parsePageRoute('#/scans/abc123').id,'abc123');assert.equal(c.parsePageRoute('#/bad-route'),null);assert.equal(c.parsePageRoute('').view,'dashboard');assert.equal(c.parsePageRoute('#/scans/<bad>'),null);});
