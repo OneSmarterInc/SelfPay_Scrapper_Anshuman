@@ -90,6 +90,8 @@ A center can retain multiple phone numbers and emails. **Approve addition**, the
 
 Review proposals are normally prepared when the batch ends; raw findings and coverage are available while it runs. Bulk selection follows the current filters across pages. Bulk approval excludes conflicts and possible duplicate locations; Apply handles up to 200 approved updates per action.
 
+Price extraction excludes explicit competitor/market comparisons and standalone deposits or installments. Ambiguous multi-amount blocks remain subject to source review; these filters cannot guarantee every published figure is a valid exam price.
+
 ## How scanning stops
 
 Pricing-related routes run first, followed by contact/location, about, relevant service pages, and other routes. Discovered pricing routes continue after the first usable price is found.

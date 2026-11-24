@@ -150,6 +150,10 @@ def extract_html(html, url):
     candidates = soup.find_all(["p", "li", "div", "section", "article", "h1", "h2", "h3", "h4", "span"])
     priced = [el for el in candidates if MONEY.search(el.get_text(" ", strip=True)) or SUFFIX.search(el.get_text(" ", strip=True))]
     for el in priced:
+        narrative=el.find_parent(['p','li','h1','h2','h3','h4','h5','h6'])
+        if narrative is not None:
+            narrative_text=narrative.get_text(' ',strip=True)
+            if len(narrative_text)<=2500 and source_issues(url,narrative_text):continue
         if any(child in priced for child in el.find_all(["p", "li", "div", "section", "article", "h1", "h2", "h3", "h4", "span"])):
             continue
         heading = next((h for h in el.find_all_previous(["h1", "h2", "h3", "h4"]) if not MONEY.search(h.get_text(" ",strip=True)) and not SUFFIX.search(h.get_text(" ",strip=True))), None)
@@ -166,6 +170,7 @@ def extract_html(html, url):
         if card is not None and re.fullmatch(r"\s*(?:"+CURRENCY+r")\s*"+NUMBER+r"\s*",value,re.I):
             title=card.find(['h2','h3','h4']).get_text(' ',strip=True)
             context=card.get_text(' ',strip=True)+' | '+' | '.join(policies)
+            if source_issues(url,card.get_text(' ',strip=True)):continue
             for item in extract_text(title+' '+value,url,'price card',context=context):
                 item['service']=title
                 item['context']=context[:1500]

@@ -6,6 +6,9 @@ from decimal import Decimal, InvalidOperation
 from urllib.parse import urlsplit, urlunsplit
 
 EXAM=re.compile(r'\b(?:MRI|MR|CTA?|CAT|PET|DEXA|DXA|ultrasound|mammogram|mammography|x[ -]?rays?|echocardiogram|arthrogram|magnetic resonance|computed tomography|bone density|biopsy|screening)\b',re.I)
+COMPARISON = re.compile(r'\b(?:other|competing)\s+(?:area\s+)?(?:hospitals?|providers?|facilities|imaging centers?)\b|\b(?:regional|nearby|local|traditional)\s+hospitals\b.{0,80}\b(?:runs?|costs?|charges?)\b|\b(?:national|industry|market)\s+(?:average|pricing|prices?|costs?)\b|\b(?:elsewhere|competitors?)\b|\bat\s+(?:a\s+|the\s+)?hospital\s+.{0,35}\b(?:runs?|costs?|charges?)\b', re.I)
+NON_TOTAL = re.compile(r'\b(?:deposit|down payment|monthly payment|per month|cancellation fee|late fee|savings)\b', re.I)
+PRICE_AMOUNT = re.compile(r'(?:\$|USD\s*)\s*\d[\d,]*(?:\.\d{1,2})?', re.I)
 
 
 def normalized(value):
@@ -21,6 +24,10 @@ def source_key(url):
 def source_issues(url,evidence):
     path=urlsplit(url or '').path
     issues=[]
+    if COMPARISON.search(evidence or ''):
+        issues.append('External-provider or market comparison is not this facility’s published price')
+    if NON_TOTAL.search(evidence or '') and len(PRICE_AMOUNT.findall(evidence or ''))<=1:
+        issues.append('Deposit, installment, saving or administrative fee is not the full exam price')
     if re.search(r'(?:^|/)(?:patient[-_]?reviews?|testimonials?|patient[-_]?stories|reviews)(?:/|$)',path,re.I):
         issues.append('Patient review/testimonial page is not an official published price list')
     if re.search(r'\bco[- ]?pay\b|\bdeductible\b|\bwould have (?:been|paid|cost)\b',evidence or '',re.I):

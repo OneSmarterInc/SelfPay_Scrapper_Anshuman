@@ -169,9 +169,8 @@ def test_cpt_first_table_preserves_description_and_code():
     assert result['amount']=='500' and result['price_type']=='self-pay / cash'
 
 
-def test_deposit_is_ambiguous_and_negative_cash_not_confirmed():
-    row=enrich(extract_text('Self-pay MRI deposit $50', 'https://example.com')[0])
-    assert row['extraction_issues']
+def test_deposit_excluded_and_negative_cash_not_confirmed():
+    assert not extract_text('Self-pay MRI deposit $50', 'https://example.com')
     row=enrich(extract_text('MRI $500. Cash not accepted.', 'https://example.com')[0])
     assert row['price_type']!='self-pay / cash'
 

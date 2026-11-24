@@ -105,7 +105,7 @@ class Store:
                 if not found: raise ValueError('Proposal not found')
                 p=json.loads(found[0])
                 if status=='approved' and p.get('kind') in ('price_evidence','fill') and (p.get('kind')=='price_evidence' or 'self-pay (USD)' in p.get('field','')) and source_issues(p.get('source_url',''),p.get('evidence','')):
-                    raise ValueError('This evidence is a testimonial or insurance comparison and cannot be approved as a self-pay price.')
+                    raise ValueError('This evidence cannot be approved as a self-pay price: '+ '; '.join(source_issues(p.get('source_url',''),p.get('evidence',''))))
                 if p['status']=='applied': raise ValueError('Applied proposals cannot be re-reviewed; use Undo in change history.')
                 if p['status']=='invalidated': raise ValueError('Source evidence was rejected. Run a new scan or rebuild remaining eligible findings.')
                 if p['kind']=='conflict':p['replace_existing']=bool(status=='approved' and replace_existing)
@@ -135,7 +135,7 @@ class Store:
                 if p['status']=='applied': outcomes.append({'id':key,'status':'already applied'});continue
                 if p['status']!='approved': raise ValueError('Only explicitly approved proposals can be applied.')
                 if (p.get('kind')=='price_evidence' or 'self-pay (USD)' in p.get('field','')) and source_issues(p.get('source_url',''),p.get('evidence','')):
-                    outcomes.append({'id':key,'status':'blocked','reason':'Testimonial or insurance comparison is not a published self-pay offer.'});continue
+                    outcomes.append({'id':key,'status':'blocked','reason':'; '.join(source_issues(p.get('source_url',''),p.get('evidence','')))});continue
                 if p['kind']=='new_record':
                     proposed=p['value']; allrows=[json.loads(r[0]) for r in db.execute('SELECT body FROM records')]
                     duplicates=[c['id'] for c in FacilityIndex(allrows).candidates(proposed)]
